@@ -1,11 +1,9 @@
 {
   "name": "node-rtsp-stream",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepublish": "npm run test",
-    "test": "mocha test/*.js"
   },
   "repository": {
     "type": "git",

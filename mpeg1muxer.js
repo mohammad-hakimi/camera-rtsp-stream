@@ -21,13 +21,9 @@ Mpeg1Muxer = function(options) {
     }
   }
   this.spawnOptions = [
-    "-rtsp_transport",
-    "tcp",
     "-i",
     this.url,
     '-f',
-    'mpegts',
-    '-codec:v',
     'mpeg1video',
     // additional ffmpeg options go here
     ...this.additionalFlags,
