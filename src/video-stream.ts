@@ -23,9 +23,9 @@ function getUrl(url: string): string | null {
 }
 
 export class VideoStream extends EventEmitter {
-    private wsServer?: Server;
+    public liveMuxers: Map<string, Mpeg1Muxer> = new Map<string, Mpeg1Muxer>();
 
-    private liveMuxers: Map<string, Mpeg1Muxer> = new Map<string, Mpeg1Muxer>();
+    private wsServer?: Server;
 
     private liveMuxerListeners: Map<string, MpegListener> = new Map<string, MpegListener>();
 

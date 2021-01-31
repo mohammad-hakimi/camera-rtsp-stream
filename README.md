@@ -6,4 +6,4 @@
 
 * Test codes can be found under `./test`
 
-* the `jsmpeg.min.js` file is tested work at this [version](https://github.com/phoboslab/jsmpeg/blob/c5fabf047f1161bcec51bca68ca7c32d377753d8/jsmpeg.min.js)
+* tested work with `jsmpeg.min.js` at this [version](https://github.com/phoboslab/jsmpeg/blob/c5fabf047f1161bcec51bca68ca7c32d377753d8/jsmpeg.min.js)
