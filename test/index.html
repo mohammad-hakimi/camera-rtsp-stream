@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSMpeg</title>
+    <script src="./jsmpeg.min.js"></script>
+</head>
+
+<body>
+    <script>
+        let player;
+
+        function createPlayer(url) {
+            player = new JSMpeg.Player(`ws://localhost:9999?url=${encodeURIComponent(url)}`, {
+                canvas: document.getElementById('v-host'),
+                autoplay: false,
+                audio: false,
+                reconnectInterval: 0,
+                onSourceEstablished: (data) => {
+                    console.log('onSourceEstablished', data);
+                    // data.socket.onmessage(msg => {
+                    //     console.log('socket on message', msg);
+                    // });
+
+                    data.socket.onclose = closeEvent => {
+                        console.log('socket onclose', closeEvent);
+                        alert(closeEvent.reason);
+                    };
+
+                    data.socket.onerror = error => {
+                        console.log('socket on error', error);
+                    };
+
+                },
+                onCompletedCallback: data => {
+                    console.log('onCompletedCallback', data);
+                },
+            });
+            console.log(player);
+        }
+
+
+        function goLive() {
+            console.log('golive');
+
+            let liveUrl = document.getElementById('url-input').value;
+
+            if (!liveUrl) {
+                return;
+            }
+            if (!player) {
+                createPlayer(liveUrl);
+            } else {
+                player.source.destroy();
+                createPlayer(liveUrl);
+            }
+        }
+
+    </script>
+    <input type="text" id="url-input" value="rtsp://192.168.9.11:554/live">
+    <button onclick="goLive();">GO</button>
+    <canvas id="v-host" style="width:90%;"></canvas>
+</body>
+
+</html>
