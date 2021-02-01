@@ -1,4 +1,6 @@
+.editorconfig
 .vscode
 node_modules
 src
 test
+tsconfig.json

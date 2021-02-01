@@ -26,8 +26,14 @@ export class Mpeg1Muxer extends EventEmitter {
         if (!options.url) { return; }
 
         let inputFfmpegArgs: Array<string> = [];
-        if (options.ffmpegArgs && Array.isArray(options.ffmpegArgs) && options.ffmpegArgs.length > 0) {
-            inputFfmpegArgs = Object.keys(options.ffmpegArgs).map(k => [k, options.ffmpegArgs![k]]).flat();
+        if (options.ffmpegArgs) {
+            inputFfmpegArgs = Object.keys(options.ffmpegArgs).map(k => {
+                if (options.ffmpegArgs?.[k]) {
+                    return [k, options.ffmpegArgs[k]];
+                } else {
+                    return [k];
+                }
+            }).flat();
         }
 
         let spawnFfmpegArgs: Array<string> = [
@@ -35,7 +41,7 @@ export class Mpeg1Muxer extends EventEmitter {
             options.url,
             '-f',
             'mpegts',
-            '-codec:v',
+            '-vcodec',
             'mpeg1video',
             ...inputFfmpegArgs,
             '-'

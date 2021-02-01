@@ -10,36 +10,50 @@
 </head>
 
 <body>
+    <style>
+        canvas {
+            width: 90%;
+        }
+
+    </style>
     <script>
         let player;
 
         function createPlayer(url) {
-            player = new JSMpeg.Player(`ws://localhost:9999?url=${encodeURIComponent(url)}`, {
-                canvas: document.getElementById('v-host'),
-                autoplay: false,
-                audio: false,
-                reconnectInterval: 0,
-                onSourceEstablished: (data) => {
-                    console.log('onSourceEstablished', data);
-                    // data.socket.onmessage(msg => {
-                    //     console.log('socket on message', msg);
-                    // });
+            try {
+                player = new JSMpeg.Player(`ws://localhost:9999?url=${encodeURIComponent(url)}`, {
+                    // canvas: document.getElementById('v-host'),
+                    autoplay: false,
+                    audio: false,
+                    videoBufferSize: 10 * 1024 * 1024,
+                    // reconnectInterval: 0,
+                    disableWebAssembly: true,
+                    // disableGl: true,
+                    onSourceEstablished: (data) => {
+                        console.log('onSourceEstablished', data);
 
-                    data.socket.onclose = closeEvent => {
-                        console.log('socket onclose', closeEvent);
-                        alert(closeEvent.reason);
-                    };
+                        data.socket.onclose = closeEvent => {
+                            console.log('socket onclose', closeEvent);
+                            if (closeEvent.reason) {
+                                alert(closeEvent.reason);
+                            }
+                        };
 
-                    data.socket.onerror = error => {
-                        console.log('socket on error', error);
-                    };
+                        data.socket.onerror = error => {
+                            console.log('socket on error', error);
+                        };
 
-                },
-                onCompletedCallback: data => {
-                    console.log('onCompletedCallback', data);
-                },
-            });
-            console.log(player);
+                    },
+                    onCompletedCallback: data => {
+                        console.log('onCompletedCallback', data);
+                    },
+                });
+                document.body.append(player.renderer.canvas);
+                console.log(player);
+            } catch (error) {
+                console.log('catched error', error);
+            }
+
         }
 
 
@@ -54,15 +68,17 @@
             if (!player) {
                 createPlayer(liveUrl);
             } else {
-                player.source.destroy();
+                // player.source.destroy();
+                // player.destroy will remove canvase element if disableGl is false and verse visa
+                player.destroy();
                 createPlayer(liveUrl);
             }
         }
 
     </script>
-    <input type="text" id="url-input" value="rtsp://192.168.9.11:554/live">
+    <input type="text" id="url-input" value="rtsp://192.168.9.11:554/live" style="width: 63%;">
     <button onclick="goLive();">GO</button>
-    <canvas id="v-host" style="width:90%;"></canvas>
+    <!-- <canvas id="v-host" style="width:90%;"></canvas> -->
 </body>
 
 </html>
