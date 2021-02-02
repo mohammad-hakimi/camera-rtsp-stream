@@ -7,7 +7,7 @@ let streamer = new VideoStream({
     ffmpegArgs: {
         '-b:v': '2048K',
         '-an': '',
-    }
+    },
 });
 
 setTimeout(() => {

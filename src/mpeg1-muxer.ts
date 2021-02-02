@@ -6,6 +6,9 @@ export interface MuxerOptions {
     ffmpegArgs?: Record<string, string>;
     ffmpegPath?: string;
 
+    /** weather the spawned `ffmpeg` child process should be detached or not */
+    shouldDetached?: boolean;
+
     /** seconds to wait for rtsp connection */
     timeout?: number;
 
@@ -47,7 +50,7 @@ export class Mpeg1Muxer extends EventEmitter {
             '-'
         ];
 
-        this.streamProcess = spawn(options.ffmpegPath, spawnFfmpegArgs, { detached: true });
+        this.streamProcess = spawn(options.ffmpegPath, spawnFfmpegArgs, { detached: options.shouldDetached });
 
         this.streamProcess.stdout?.on('data', data => {
             if (!this.streamStarted) {
