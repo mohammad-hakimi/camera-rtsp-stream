@@ -5,7 +5,7 @@ let streamer = new VideoStream({
     wsPort: 9999,
     ffmpegPath: 'ffmpeg',
     ffmpegArgs: {
-        '-b:v': '1024K',
+        '-b:v': '2048K',
         '-an': '',
     }
 });

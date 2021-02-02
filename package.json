@@ -20,6 +20,9 @@
         "type": "git",
         "url": "https://github.com/Emeryao/rtsp-multi-stream"
     },
+    "scripts": {
+        "start": "ts-node ./test/app.ts"
+    },
     "types": "./dist/video-stream.d.ts",
     "version": "0.1.2"
 }
