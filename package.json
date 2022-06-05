@@ -5,6 +5,7 @@
         "url": "https://github.com/mohammad-hakimi/"
     },
     "dependencies": {
+        "camera-rtsp-stream": "^0.1.0",
         "ws": "^7.4.2"
     },
     "devDependencies": {
