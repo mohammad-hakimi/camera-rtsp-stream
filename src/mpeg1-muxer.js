@@ -1,34 +1,23 @@
-import { ChildProcess, spawn } from 'child_process';
-import { EventEmitter } from 'events';
+"use strict";
+Object.defineProperty(exports, "__esModule", {value: true});
+exports.Mpeg1Muxer = void 0;
+const child_process_1 = require("child_process");
+const events_1 = require("events");
 
-export interface MuxerOptions {
-    url?: string;
-    ffmpegArgs?: Record<string, string>;
-    ffmpegPath?: string;
-
-    /** weather the spawned `ffmpeg` child process should be detached or not */
-    shouldDetached?: boolean;
-
-    /** seconds to wait for rtsp connection */
-    timeout?: number;
-
-    debug?: boolean;
-}
-
-export class Mpeg1Muxer extends EventEmitter {
-
-    public streamProcess?: ChildProcess;
-
-    private streamStarted: boolean = false;
-
-    public constructor(options?: MuxerOptions) {
+class Mpeg1Muxer extends events_1.EventEmitter {
+    constructor(options) {
         super();
-
-        if (!options || typeof options == 'undefined') { return; }
-        if (!options.ffmpegPath) { return; }
-        if (!options.url) { return; }
-
-        let inputFfmpegArgs: Array<string> = [];
+        this.streamStarted = false;
+        if (!options || typeof options == 'undefined') {
+            return;
+        }
+        if (!options.ffmpegPath) {
+            return;
+        }
+        if (!options.url) {
+            return;
+        }
+        let inputFfmpegArgs = [];
         if (options.ffmpegArgs) {
             inputFfmpegArgs = Object.keys(options.ffmpegArgs).map(k => {
                 if (options.ffmpegArgs?.[k]) {
@@ -38,8 +27,7 @@ export class Mpeg1Muxer extends EventEmitter {
                 }
             }).flat();
         }
-
-        let spawnFfmpegArgs: Array<string> = [
+        let spawnFfmpegArgs = [
             '-i',
             options.url,
             '-f',
@@ -49,33 +37,28 @@ export class Mpeg1Muxer extends EventEmitter {
             ...inputFfmpegArgs,
             '-'
         ];
-
-        this.streamProcess = spawn(options.ffmpegPath, spawnFfmpegArgs, { detached: options.shouldDetached });
-
+        this.streamProcess = child_process_1.spawn(options.ffmpegPath, spawnFfmpegArgs);
         this.streamProcess.stdout?.on('data', data => {
             if (!this.streamStarted) {
                 this.streamStarted = true;
             }
             this.emit('mpeg1data', data);
         });
-
         this.streamProcess.stderr?.on('data', data => {
             if (options.debug) {
                 process.stderr.write(data);
             }
-            if ((data as Buffer).toString('utf-8').indexOf('Server returned') >= 0) {
-                let errorOutputLine: string = (data as Buffer).toString('utf-8');
+            if (data.toString('utf-8').indexOf('Server returned') >= 0) {
+                let errorOutputLine = data.toString('utf-8');
                 this.emit('liveErr', errorOutputLine.substr(errorOutputLine.indexOf('Server returned')));
                 this.stop();
             }
         });
-
         this.streamProcess.on('exit', (code, signal) => {
-            if (code != 0) {
+            if (code !== 0) {
                 this.emit('ffmpeg process exited with error', code, signal);
             }
         });
-
         setTimeout(() => {
             if (!this.streamStarted) {
                 this.emit('liveErr', 'Timeout');
@@ -84,9 +67,10 @@ export class Mpeg1Muxer extends EventEmitter {
         }, (options.timeout || 9) * 1000);
     }
 
-    public stop(): void {
+    stop() {
         this.streamProcess?.kill();
         this.removeAllListeners();
     }
-
 }
+
+exports.Mpeg1Muxer = Mpeg1Muxer;
