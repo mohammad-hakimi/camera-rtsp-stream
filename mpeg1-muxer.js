@@ -33,7 +33,7 @@ class Mpeg1Muxer extends events_1.EventEmitter {
             '-f',
             'mpegts',
             '-vcodec',
-            'mpeg1video',
+            'libx264',
             ...inputFfmpegArgs,
             '-'
         ];
