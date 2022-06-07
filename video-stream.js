@@ -77,7 +77,7 @@ class VideoStream extends events_1.EventEmitter {
                     if (listenerFunc) {
                         muxer.removeListener('mpeg1data', listenerFunc);
                     }
-                    if (muxer.listenerCount('mpeg1data') == 0) {
+                    if (muxer.listenerCount('mpeg1data') === 0) {
                         muxer.stop();
                         this.liveMuxers.delete(socketLiveUrl);
                         this.liveMuxers.delete(`${socketLiveUrl}-${socketId}`);

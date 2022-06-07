@@ -15,16 +15,15 @@
         "typescript": "^4.1.3"
     },
     "license": "MIT",
-    "main": "./src/video-stream.js",
+    "main": "video-stream.js",
     "name": "camera-rtsp-stream",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Emeryao/rtsp-multi-stream"
+        "url": "https://github.com/mohammad-hakimi/camera-rtsp-stream.git"
     },
     "scripts": {
         "build": "tsc",
         "start": "ts-node ./test/app.ts"
     },
-    "types": "./dist/video-stream.d.ts",
-    "version": "0.1.2"
+    "version": "0.1.5"
 }

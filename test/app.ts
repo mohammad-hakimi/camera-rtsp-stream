@@ -1,4 +1,4 @@
-import { VideoStream } from '../src/video-stream';
+import { VideoStream } from '../video-stream';
 
 let streamer = new VideoStream({
     debug: true,
