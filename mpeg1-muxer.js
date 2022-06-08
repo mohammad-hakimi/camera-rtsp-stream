@@ -28,12 +28,16 @@ class Mpeg1Muxer extends events_1.EventEmitter {
             }).flat();
         }
         let spawnFfmpegArgs = [
+            '-rtsp_transport',
+            'tcp',
             '-i',
             options.url,
             '-f',
             'mpegts',
             '-vcodec',
             'mpeg1video',
+            '-bf',
+            '0',
             ...inputFfmpegArgs,
             '-'
         ];
