@@ -6,7 +6,7 @@ declare class VideoStream extends EventEmitter {
         urlCreator?: (camId: string) => Promise<string>;
         wsPort: number;
         ffmpegPath?: string;
-        ffmpegArgs?: string;
+        ffmpegArgs?: { [key: string]: string };
     });
 
     stop(): void;
