@@ -21,7 +21,7 @@ class VideoStream extends events_1.EventEmitter {
         this.liveMuxerListeners = new Map();
         this.wsServer = new ws_1.Server({port: options?.wsPort || 9999});
         this.wsServer.on('connection', async (socket, request) => {
-            this.emit('connection', request)
+            this.emit('connection', socket, request)
             if (!request.url) {
                 return;
             }
