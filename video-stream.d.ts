@@ -7,6 +7,7 @@ declare class VideoStream extends EventEmitter {
         wsPort: number;
         ffmpegPath?: string;
         ffmpegArgs?: { [key: string]: string };
+        timeout?: number;
     });
 
     stop(): void;
