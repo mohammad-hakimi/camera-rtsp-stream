@@ -38,11 +38,11 @@ class VideoStream extends events_1.EventEmitter {
                 return;
             }
             logList.push("Preparing...")
-            options.getLogImage && socket.send(options.getLogImage(logList))
+            options.getLogImage && socket.send(await options.getLogImage(logList))
             let liveUrl = await options.urlCreator(getUrl(request.url));
             if (!liveUrl) {
                 logList.push("There is a problem with the camera configuration. Check the camera config.")
-                options.getLogImage && socket.send(options.getLogImage(logList))
+                options.getLogImage && socket.send(await options.getLogImage(logList))
                 return;
             }
             console.log('Socket connected', request.url);
@@ -51,9 +51,9 @@ class VideoStream extends events_1.EventEmitter {
             if (!this.liveMuxers.has(liveUrl)) {
                 let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
                 this.liveMuxers.set(liveUrl, muxer);
-                muxer.on('liveErr', errMsg => {
+                muxer.on('liveErr', async errMsg => {
                     logList.push("Couldn't connect to the camera. Check if the camera is configured correctly.")
-                    options.getLogImage && socket.send(options.getLogImage(logList))
+                    options.getLogImage && socket.send(await options.getLogImage(logList))
                     console.log('Error go live', errMsg);
                     socket.send(4104);
                     // code should be in [4000,4999] ref https://tools.ietf.org/html/rfc6455#section-7.4.2
