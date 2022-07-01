@@ -23,7 +23,7 @@ class VideoStream extends events_1.EventEmitter {
      *         ffmpegPath?: string;
      *         ffmpegArgs?: { [key: string]: string };
      *         timeout?: number;
-     *         getLogImage?: (messageList: string[]) => Promise<Blob>;
+     *         getLogImage?: (messageList: string[]) => Promise<buffer.Blob>;
      *     }} options
      */
     constructor(options) {

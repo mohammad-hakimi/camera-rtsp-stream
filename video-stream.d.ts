@@ -1,5 +1,5 @@
 import {EventEmitter} from "events";
-
+import {Blob} from 'buffer';
 
 declare class VideoStream extends EventEmitter {
     constructor(options: {
