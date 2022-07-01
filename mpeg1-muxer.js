@@ -7,6 +7,7 @@ const events_1 = require("events");
 class Mpeg1Muxer extends events_1.EventEmitter {
     constructor(options) {
         super();
+        this.emit('log', "Stream is being initialized...")
         this.streamStarted = false;
         if (!options || typeof options == 'undefined') {
             return;
@@ -41,9 +42,11 @@ class Mpeg1Muxer extends events_1.EventEmitter {
             ...inputFfmpegArgs,
             '-'
         ];
+        this.emit('log', "Connecting to the camera...")
         this.streamProcess = child_process_1.spawn(options.ffmpegPath, spawnFfmpegArgs);
         this.streamProcess.stdout?.on('data', data => {
             if (!this.streamStarted) {
+                this.emit('log', 'Connected to the camera. Getting stream ready...')
                 this.streamStarted = true;
             }
             this.emit('mpeg1data', data);

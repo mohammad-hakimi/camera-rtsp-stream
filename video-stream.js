@@ -15,19 +15,34 @@ function getUrl(url) {
 }
 
 class VideoStream extends events_1.EventEmitter {
+    /**
+     *
+     * @param {{
+     *         urlCreator?: (camId: string) => Promise<string>;
+     *         wsPort: number;
+     *         ffmpegPath?: string;
+     *         ffmpegArgs?: { [key: string]: string };
+     *         timeout?: number;
+     *         getLogImage?: (messageList: string[]) => Promise<Blob>;
+     *     }} options
+     */
     constructor(options) {
         super();
         this.liveMuxers = new Map();
         this.liveMuxerListeners = new Map();
         this.wsServer = new ws_1.Server({port: options?.wsPort || 9999});
         this.wsServer.on('connection', async (socket, request) => {
+            const logList = []
             this.emit('connection', socket, request)
             if (!request.url) {
                 return;
             }
-
+            logList.push("Preparing...")
+            options.getLogImage && socket.send(options.getLogImage(logList))
             let liveUrl = await options.urlCreator(getUrl(request.url));
             if (!liveUrl) {
+                logList.push("There is a problem with the camera configuration. Check the camera config.")
+                options.getLogImage && socket.send(options.getLogImage(logList))
                 return;
             }
             console.log('Socket connected', request.url);
@@ -37,6 +52,8 @@ class VideoStream extends events_1.EventEmitter {
                 let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', errMsg => {
+                    logList.push("Couldn't connect to the camera. Check if the camera is configured correctly.")
+                    options.getLogImage && socket.send(options.getLogImage(logList))
                     console.log('Error go live', errMsg);
                     socket.send(4104);
                     // code should be in [4000,4999] ref https://tools.ietf.org/html/rfc6455#section-7.4.2
