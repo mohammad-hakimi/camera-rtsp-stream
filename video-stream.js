@@ -55,7 +55,10 @@ class VideoStream extends events_1.EventEmitter {
                 let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
-                    logList.push("Couldn't connect to the camera. Check if the camera is configured correctly.")
+                    options.getLogImage && socket.send(JSON.stringify({
+                        log: true,
+                        data: await options.getLogImage(logList)
+                    }))
                     options.getLogImage && socket.send(JSON.stringify({
                         log: true,
                         data: await options.getLogImage(logList)
@@ -68,6 +71,13 @@ class VideoStream extends events_1.EventEmitter {
                 let listenerFunc = data => {
                     socket.send(data);
                 };
+                muxer.on('log', async message => {
+                    logList.push(message)
+                    options.getLogImage && socket.send(JSON.stringify({
+                        log: true,
+                        data: await options.getLogImage(logList)
+                    }))
+                })
                 muxer.on('mpeg1data', listenerFunc);
                 this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
             } else {
@@ -76,6 +86,13 @@ class VideoStream extends events_1.EventEmitter {
                     let listenerFunc = data => {
                         socket.send(data);
                     };
+                    muxer.on('log', async message => {
+                        logList.push(message)
+                        options.getLogImage && socket.send(JSON.stringify({
+                            log: true,
+                            data: await options.getLogImage(logList)
+                        }))
+                    })
                     muxer.on('mpeg1data', listenerFunc);
                     this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
                 }
