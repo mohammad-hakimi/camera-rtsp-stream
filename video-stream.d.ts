@@ -1,5 +1,4 @@
 import {EventEmitter} from "events";
-import {Blob} from 'buffer';
 
 declare class VideoStream extends EventEmitter {
     constructor(options: {
@@ -8,7 +7,7 @@ declare class VideoStream extends EventEmitter {
         ffmpegPath?: string;
         ffmpegArgs?: { [key: string]: string };
         timeout?: number;
-        getLogImage?: (messageList: string[]) => Promise<Blob>;
+        getLogImage?: (messageList: string[]) => Promise<string>;
     });
 
     stop(): void;

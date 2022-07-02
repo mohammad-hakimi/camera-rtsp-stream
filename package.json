@@ -25,5 +25,5 @@
         "build": "tsc",
         "start": "ts-node ./test/app.ts"
     },
-    "version": "0.1.18"
+    "version": "0.1.19"
 }

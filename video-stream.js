@@ -23,7 +23,7 @@ class VideoStream extends events_1.EventEmitter {
      *         ffmpegPath?: string;
      *         ffmpegArgs?: { [key: string]: string };
      *         timeout?: number;
-     *         getLogImage?: (messageList: string[]) => Promise<buffer.Blob>;
+     *         getLogImage?: (messageList: string[]) => Promise<string>;
      *     }} options
      */
     constructor(options) {
@@ -38,11 +38,11 @@ class VideoStream extends events_1.EventEmitter {
                 return;
             }
             logList.push("Preparing...")
-            options.getLogImage && socket.send(await (await options.getLogImage(logList)).arrayBuffer())
+            options.getLogImage && socket.send({log: true, data: await options.getLogImage(logList)})
             let liveUrl = await options.urlCreator(getUrl(request.url));
             if (!liveUrl) {
                 logList.push("There is a problem with the camera configuration. Check the camera config.")
-                options.getLogImage && socket.send(await (await options.getLogImage(logList)).arrayBuffer())
+                options.getLogImage && socket.send({log: true, data: await options.getLogImage(logList)})
                 return;
             }
             console.log('Socket connected', request.url);
@@ -53,7 +53,7 @@ class VideoStream extends events_1.EventEmitter {
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
                     logList.push("Couldn't connect to the camera. Check if the camera is configured correctly.")
-                    options.getLogImage && socket.send(await (await options.getLogImage(logList)).arrayBuffer())
+                    options.getLogImage && socket.send({log: true, data: await options.getLogImage(logList)})
                     console.log('Error go live', errMsg);
                     socket.send(4104);
                     // code should be in [4000,4999] ref https://tools.ietf.org/html/rfc6455#section-7.4.2
