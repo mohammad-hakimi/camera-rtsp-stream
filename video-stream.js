@@ -52,6 +52,7 @@ class VideoStream extends events_1.EventEmitter {
                 let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
+                    logList.push("Cannot connect to the camera. Check the camera configurations and fix them.")
                     options.getLogImage && socket.send(await options.getLogImage(logList))
                     console.log('Error go live', errMsg);
                     socket.send(4104);

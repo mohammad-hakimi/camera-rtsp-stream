@@ -48,8 +48,9 @@ class Mpeg1Muxer extends events_1.EventEmitter {
             if (!this.streamStarted) {
                 this.emit('log', 'Connected to the camera. Getting stream ready...')
                 this.streamStarted = true;
+            } else {
+                this.emit('mpeg1data', data);
             }
-            this.emit('mpeg1data', data);
         });
         this.streamProcess.stderr?.on('data', data => {
             if (options.debug) {
