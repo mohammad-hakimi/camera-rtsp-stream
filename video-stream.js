@@ -38,14 +38,11 @@ class VideoStream extends events_1.EventEmitter {
                 return;
             }
             logList.push("Preparing...")
-            options.getLogImage && socket.send(JSON.stringify({log: true, data: await options.getLogImage(logList)}))
+            options.getLogImage && socket.send(await options.getLogImage(logList))
             let liveUrl = await options.urlCreator(getUrl(request.url));
             if (!liveUrl) {
                 logList.push("There is a problem with the camera configuration. Check the camera config.")
-                options.getLogImage && socket.send(JSON.stringify({
-                    log: true,
-                    data: await options.getLogImage(logList)
-                }))
+                options.getLogImage && socket.send(await options.getLogImage(logList))
                 return;
             }
             console.log('Socket connected', request.url);
@@ -55,14 +52,7 @@ class VideoStream extends events_1.EventEmitter {
                 let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
-                    options.getLogImage && socket.send(JSON.stringify({
-                        log: true,
-                        data: await options.getLogImage(logList)
-                    }))
-                    options.getLogImage && socket.send(JSON.stringify({
-                        log: true,
-                        data: await options.getLogImage(logList)
-                    }))
+                    options.getLogImage && socket.send(await options.getLogImage(logList))
                     console.log('Error go live', errMsg);
                     socket.send(4104);
                     // code should be in [4000,4999] ref https://tools.ietf.org/html/rfc6455#section-7.4.2
@@ -73,10 +63,7 @@ class VideoStream extends events_1.EventEmitter {
                 };
                 muxer.on('log', async message => {
                     logList.push(message)
-                    options.getLogImage && socket.send(JSON.stringify({
-                        log: true,
-                        data: await options.getLogImage(logList)
-                    }))
+                    options.getLogImage && socket.send(await options.getLogImage(logList))
                 })
                 muxer.on('mpeg1data', listenerFunc);
                 this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
@@ -88,10 +75,7 @@ class VideoStream extends events_1.EventEmitter {
                     };
                     muxer.on('log', async message => {
                         logList.push(message)
-                        options.getLogImage && socket.send(JSON.stringify({
-                            log: true,
-                            data: await options.getLogImage(logList)
-                        }))
+                        options.getLogImage && socket.send(await options.getLogImage(logList))
                     })
                     muxer.on('mpeg1data', listenerFunc);
                     this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
