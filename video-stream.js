@@ -23,7 +23,6 @@ class VideoStream extends events_1.EventEmitter {
      *         ffmpegPath?: string;
      *         ffmpegArgs?: { [key: string]: string };
      *         timeout?: number;
-     *         getLogImage?: (messageList: string[]) => Promise<string>;
      *     }} options
      */
     constructor(options) {
@@ -32,17 +31,16 @@ class VideoStream extends events_1.EventEmitter {
         this.liveMuxerListeners = new Map();
         this.wsServer = new ws_1.Server({port: options?.wsPort || 9999});
         this.wsServer.on('connection', async (socket, request) => {
-            const logList = []
             this.emit('connection', socket, request)
             if (!request.url) {
                 return;
             }
-            logList.push("Preparing...")
-            options.getLogImage && socket.send(await options.getLogImage(logList))
             let liveUrl = await options.urlCreator(getUrl(request.url));
             if (!liveUrl) {
-                logList.push("There is a problem with the camera configuration. Check the camera config.")
-                options.getLogImage && socket.send(await options.getLogImage(logList))
+                socket.send(JSON.stringify({
+                    code: 1,
+                    errMsg: "There is a problem with the camera configuration. Check the camera config."
+                }))
                 return;
             }
             console.log('Socket connected', request.url);
@@ -52,8 +50,10 @@ class VideoStream extends events_1.EventEmitter {
                 let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
-                    logList.push("Cannot connect to the camera. Check the camera configurations and fix them.")
-                    options.getLogImage && socket.send(await options.getLogImage(logList))
+                    socket.send(JSON.stringify({
+                        code: 2,
+                        errMsg: "Cannot connect to the camera. Check the camera configurations and fix them."
+                    }))
                     console.log('Error go live', errMsg);
                     socket.send(4104);
                     // code should be in [4000,4999] ref https://tools.ietf.org/html/rfc6455#section-7.4.2
@@ -63,8 +63,10 @@ class VideoStream extends events_1.EventEmitter {
                     socket.send(data);
                 };
                 muxer.on('log', async message => {
-                    logList.push(message)
-                    options.getLogImage && socket.send(await options.getLogImage(logList))
+                    socket.send(JSON.stringify({
+                        code: 3,
+                        errMsg: message
+                    }))
                 })
                 muxer.on('mpeg1data', listenerFunc);
                 this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
@@ -75,8 +77,10 @@ class VideoStream extends events_1.EventEmitter {
                         socket.send(data);
                     };
                     muxer.on('log', async message => {
-                        logList.push(message)
-                        options.getLogImage && socket.send(await options.getLogImage(logList))
+                        socket.send(JSON.stringify({
+                            code: 3,
+                            errMsg: message
+                        }))
                     })
                     muxer.on('mpeg1data', listenerFunc);
                     this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);

@@ -7,7 +7,6 @@ declare class VideoStream extends EventEmitter {
         ffmpegPath?: string;
         ffmpegArgs?: { [key: string]: string };
         timeout?: number;
-        getLogImage?: (messageList: string[]) => Promise<string>;
     });
 
     stop(): void;
