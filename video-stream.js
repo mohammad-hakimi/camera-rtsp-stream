@@ -36,6 +36,18 @@ class VideoStream extends events_1.EventEmitter {
                 return;
             }
             let liveUrl = await options.urlCreator(getUrl(request.url));
+            if (liveUrl === "403") {
+                socket.send(JSON.stringify({
+                    code: 403,
+                    errMsg: "This camera is disabled. In order to stream this camera you need to enable it."
+                }))
+            }
+            if (liveUrl === "500") {
+                socket.send(JSON.stringify({
+                    code: 500,
+                    errMsg: "Unknown error occurred. If it consists contact the support."
+                }))
+            }
             if (!liveUrl) {
                 socket.send(JSON.stringify({
                     code: 1,
