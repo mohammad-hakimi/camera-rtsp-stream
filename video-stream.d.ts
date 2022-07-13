@@ -7,6 +7,7 @@ declare class VideoStream extends EventEmitter {
         ffmpegPath?: string;
         ffmpegArgs?: { [key: string]: string };
         timeout?: number;
+        format?: "mjpeg" | "mpeg1";
     });
 
     stop(): void;

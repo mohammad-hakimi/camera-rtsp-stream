@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", {value: true});
 exports.VideoStream = void 0;
 const events_1 = require("events");
 const mpeg1_muxer_1 = require("./mpeg1-muxer");
+const mjpeg_muxer_1 = require("./mjpeg-muxer");
 const ws_1 = require("ws");
 
 function getUrl(url) {
@@ -23,10 +24,12 @@ class VideoStream extends events_1.EventEmitter {
      *         ffmpegPath?: string;
      *         ffmpegArgs?: { [key: string]: string };
      *         timeout?: number;
+     *         format?: "mjpeg" | "mpeg1";
      *     }} options
      */
     constructor(options) {
         super();
+        this.format = options.format ?? 'mpeg1'
         this.liveMuxers = new Map();
         this.liveMuxerListeners = new Map();
         this.wsServer = new ws_1.Server({port: options?.wsPort || 9999});
@@ -61,7 +64,10 @@ class VideoStream extends events_1.EventEmitter {
             socket.id = Date.now().toString();
             socket.liveUrl = liveUrl;
             if (!this.liveMuxers.has(liveUrl)) {
-                let muxer = new mpeg1_muxer_1.Mpeg1Muxer({...options, url: liveUrl});
+                let muxer = new (this.format === 'mpeg1' ? mpeg1_muxer_1.Mpeg1Muxer : mjpeg_muxer_1.MjpegMuxer)({
+                    ...options,
+                    url: liveUrl
+                });
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
                     socket.send(JSON.stringify({
