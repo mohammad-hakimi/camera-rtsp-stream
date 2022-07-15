@@ -18,13 +18,13 @@ class VideoStream extends events_1.EventEmitter {
     /**
      *
      * @param {{
-     *         urlCreator?: (camId: string) => Promise<string>;
+     *         urlCreator?: (camId: string, websocket: any, request: any) => Promise<string>;
      *         wsPort: number;
      *         ffmpegPath?: string;
      *         ffmpegArgs?: { [key: string]: string };
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
-     *         calculateFPS?: (camID: string) => number | Promise<number>;
+     *         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
      *     }} options
      */
     constructor(options) {
@@ -38,8 +38,8 @@ class VideoStream extends events_1.EventEmitter {
             if (!request.url) {
                 return;
             }
-            let liveUrl = await options.urlCreator(getUrl(request.url));
-            let fps = (await options.calculateFPS?.(getUrl(request.url))) ?? 1;
+            let liveUrl = await options.urlCreator(getUrl(request.url), socket, request);
+            let fps = (await options.calculateFPS?.(getUrl(request.url), socket, request)) ?? 1;
             if (liveUrl === "403") {
                 socket.send(JSON.stringify({
                     code: 403,
