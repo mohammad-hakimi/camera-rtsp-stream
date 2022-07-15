@@ -2,9 +2,8 @@
 Object.defineProperty(exports, "__esModule", {value: true});
 exports.VideoStream = void 0;
 const events_1 = require("events");
-const mpeg1_muxer_1 = require("./mpeg1-muxer");
-const mjpeg_muxer_1 = require("./mjpeg-muxer");
 const ws_1 = require("ws");
+const muxers = require('muxers')
 
 function getUrl(url) {
     try {
@@ -25,6 +24,7 @@ class VideoStream extends events_1.EventEmitter {
      *         ffmpegArgs?: { [key: string]: string };
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
+     *         calculateFPS?: (camID: string) => number | Promise<number>;
      *     }} options
      */
     constructor(options) {
@@ -39,6 +39,7 @@ class VideoStream extends events_1.EventEmitter {
                 return;
             }
             let liveUrl = await options.urlCreator(getUrl(request.url));
+            let fps = (await options.calculateFPS?.(getUrl(request.url))) ?? 1;
             if (liveUrl === "403") {
                 socket.send(JSON.stringify({
                     code: 403,
@@ -64,10 +65,7 @@ class VideoStream extends events_1.EventEmitter {
             socket.id = Date.now().toString();
             socket.liveUrl = liveUrl;
             if (!this.liveMuxers.has(liveUrl)) {
-                let muxer = new (this.format === 'mpeg1' ? mpeg1_muxer_1.Mpeg1Muxer : mjpeg_muxer_1.MjpegMuxer)({
-                    ...options,
-                    url: liveUrl
-                });
+                let muxer = new muxers.Muxer({...options, url: liveUrl, fps: fps}, options.format);
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
                     socket.send(JSON.stringify({

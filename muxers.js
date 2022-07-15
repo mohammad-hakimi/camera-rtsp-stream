@@ -1,11 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", {value: true});
-exports.Mpeg1Muxer = void 0;
 const child_process_1 = require("child_process");
 const events_1 = require("events");
 
-class Mpeg1Muxer extends events_1.EventEmitter {
-    constructor(options) {
+class Muxer extends events_1.EventEmitter {
+    /**
+     * @param {{
+     *         url: string;
+     *         ffmpegPath?: string;
+     *         ffmpegArgs?: { [key: string]: string };
+     *         timeout?: number;
+     *         format?: "mjpeg" | "mpeg1";
+     *         fps: number;
+     * }} options
+     * @param {"mjpeg" | "mpeg1"} type
+     */
+    constructor(options, type) {
         super();
         this.emit('log', "Stream is being initialized...")
         this.streamStarted = false;
@@ -33,12 +43,14 @@ class Mpeg1Muxer extends events_1.EventEmitter {
             'tcp',
             '-i',
             options.url,
-            '-f',
-            'mpegts',
+            ...(type === 'mpeg1' ? ['-f',
+                'mpegts',] : []),
             '-vcodec',
-            'mpeg1video',
+            type === 'mpeg1' ? 'mpeg1video' : 'mjpeg',
             '-bf',
             '0',
+            '-vf',
+            `fps=fps=${options.fps}`,
             ...inputFfmpegArgs,
             '-'
         ];
@@ -79,4 +91,4 @@ class Mpeg1Muxer extends events_1.EventEmitter {
     }
 }
 
-exports.Mpeg1Muxer = Mpeg1Muxer;
+exports.Muxer = Muxer;
