@@ -51,6 +51,8 @@ class Muxer extends events_1.EventEmitter {
             '0',
             '-vf',
             `fps=fps=${options.fps}`,
+            '-r',
+            `${options.fps}`,
             ...inputFfmpegArgs,
             '-'
         ];
