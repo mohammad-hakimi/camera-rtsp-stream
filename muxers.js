@@ -44,7 +44,7 @@ class Muxer extends events_1.EventEmitter {
             '-i',
             options.url,
             ...(type === 'mpeg1' ? ['-f',
-                'mpegts'] : []),
+                'mpegts'] : ['-f', 'mjpeg']),
             ...(type === 'mpeg1' ? ['-vcodec',
                 'mpeg1video'] : []),
             '-bf',
