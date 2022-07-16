@@ -49,11 +49,11 @@ class Muxer extends events_1.EventEmitter {
                 'mpeg1video'] : []),
             '-bf',
             '0',
-            '-vf',
-            `fps=fps=${options.fps * 2}`,
             '-r',
             `${options.fps}`,
             ...inputFfmpegArgs,
+            '-vf',
+            [`fps=fps=${options.fps * 2}`, ...([options.ffmpegArgs?.['-vf']] ?? [])].join(','),
             '-'
         ];
         this.emit('log', "Connecting to the camera...")
