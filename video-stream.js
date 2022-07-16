@@ -5,7 +5,7 @@ const events_1 = require("events");
 const ws_1 = require("ws");
 const muxers = require('./muxers')
 
-function getUrl(url) {
+function getCameraID(url) {
     try {
         let parsedUrl = new URL(url, 'http://localhost');
         return parsedUrl.searchParams.get('cameraId');
@@ -21,7 +21,8 @@ class VideoStream extends events_1.EventEmitter {
      *         urlCreator?: (camId: string, websocket: any, request: any) => Promise<string>;
      *         wsPort: number;
      *         ffmpegPath?: string;
-     *         ffmpegArgs?: { [key: string]: string };
+     *         ffmpegArgs?: { [key: string]: string } |
+     *             ((camId: string, websocket: any, request: any) => Promise<{ [key: string]: string }>);
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
      *         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
@@ -38,8 +39,8 @@ class VideoStream extends events_1.EventEmitter {
             if (!request.url) {
                 return;
             }
-            let liveUrl = await options.urlCreator(getUrl(request.url), socket, request);
-            let fps = (await options.calculateFPS?.(getUrl(request.url), socket, request)) ?? 1;
+            let liveUrl = await options.urlCreator(getCameraID(request.url), socket, request);
+            let fps = (await options.calculateFPS?.(getCameraID(request.url), socket, request)) ?? 1;
             if (liveUrl === "403") {
                 socket.send(JSON.stringify({
                     code: 403,
@@ -65,7 +66,10 @@ class VideoStream extends events_1.EventEmitter {
             socket.id = Date.now().toString();
             socket.liveUrl = liveUrl;
             if (!this.liveMuxers.has(liveUrl)) {
-                let muxer = new muxers.Muxer({...options, url: liveUrl, fps: fps}, options.format);
+                const ffmpegArgs = typeof options.ffmpegArgs === 'function' ?
+                    await options.ffmpegArgs(getCameraID(request.url)) :
+                    options.ffmpegArgs
+                let muxer = new muxers.Muxer({...options, url: liveUrl, fps: fps, ffmpegArgs}, options.format);
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
                     socket.send(JSON.stringify({

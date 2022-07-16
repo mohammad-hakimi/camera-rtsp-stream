@@ -6,7 +6,8 @@ declare class VideoStream extends EventEmitter {
         urlCreator?: (camId: string, websocket: any, request: any) => Promise<string>;
         wsPort: number;
         ffmpegPath?: string;
-        ffmpegArgs?: { [key: string]: string };
+        ffmpegArgs?: { [key: string]: string } |
+            ((camId: string, websocket: any, request: any) => Promise<{ [key: string]: string }>);
         timeout?: number;
         format?: "mjpeg" | "mpeg1";
         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
