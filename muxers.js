@@ -12,7 +12,7 @@ class Muxer extends events_1.EventEmitter {
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
      *         fps: number;
-     *         transport?: "udp" | "tcp"
+     *         transport?: "tcp" | "udp"
      * }} options
      * @param {"mjpeg" | "mpeg1"} type
      */

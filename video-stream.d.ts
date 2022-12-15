@@ -10,7 +10,7 @@ declare class VideoStream extends EventEmitter {
             ((camId: string, websocket: any, request: any) => Promise<{ [key: string]: string }>);
         timeout?: number;
         format?: "mjpeg" | "mpeg1";
-        transport?: "udp" | "tcp";
+        transport?: (camID: string, websocket: any, request: any) => "tcp" | "udp" | Promise<"tcp" | "udp">;
         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
     });
 

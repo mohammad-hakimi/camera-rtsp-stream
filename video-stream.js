@@ -26,7 +26,7 @@ class VideoStream extends events_1.EventEmitter {
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
      *         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
-     *         transport?: "tcp" | "udp";
+     *         transport?: (camID: string, websocket: any, request: any) =>  "tcp" | "udp" | Promise< "tcp" | "udp">
      *     }} options
      */
     constructor(options) {
@@ -70,7 +70,16 @@ class VideoStream extends events_1.EventEmitter {
                 const ffmpegArgs = typeof options.ffmpegArgs === 'function' ?
                     await options.ffmpegArgs(getCameraID(request.url)) :
                     options.ffmpegArgs
-                let muxer = new muxers.Muxer({...options, url: liveUrl, fps: fps, ffmpegArgs}, options.format);
+                const transport = typeof options.transport === 'function' ?
+                    await options.transport(getCameraID(request.url), socket, request) :
+                    options.transport
+                let muxer = new muxers.Muxer({
+                    ...options,
+                    url: liveUrl,
+                    fps: fps,
+                    ffmpegArgs,
+                    transport
+                }, options.format);
                 this.liveMuxers.set(liveUrl, muxer);
                 muxer.on('liveErr', async errMsg => {
                     socket.send(JSON.stringify({
