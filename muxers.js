@@ -12,6 +12,7 @@ class Muxer extends events_1.EventEmitter {
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
      *         fps: number;
+     *         transport?: "udp" | "tcp"
      * }} options
      * @param {"mjpeg" | "mpeg1"} type
      */
@@ -40,7 +41,7 @@ class Muxer extends events_1.EventEmitter {
         }
         let spawnFfmpegArgs = [
             '-rtsp_transport',
-            'tcp',
+            options.transport ?? "tcp",
             '-i',
             options.url,
             ...(type === 'mpeg1' ? ['-f',

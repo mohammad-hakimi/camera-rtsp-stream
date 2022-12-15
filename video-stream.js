@@ -26,6 +26,7 @@ class VideoStream extends events_1.EventEmitter {
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
      *         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
+     *         transport?: "tcp" | "udp";
      *     }} options
      */
     constructor(options) {
