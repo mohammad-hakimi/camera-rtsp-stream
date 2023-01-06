@@ -116,7 +116,7 @@ class VideoStream extends events_1.EventEmitter {
                         noDataTimeout = setTimeout(async ()=>{
                             this.liveMuxers.delete(liveUrl)
                             await startConnection()
-                        }, 40000)
+                        }, 120000)
 
                     };
                     muxer.on('log', async message => {
