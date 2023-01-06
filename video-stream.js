@@ -26,7 +26,7 @@ class VideoStream extends events_1.EventEmitter {
      *         timeout?: number;
      *         format?: "mjpeg" | "mpeg1";
      *         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
-     *         transport?: (camID: string, websocket: any, request: any) =>  "tcp" | "udp" | Promise< "tcp" | "udp">
+     *         transport?: (camID: string, websocket: any, request: any) =>  "tcp" | "udp" | Promise< "tcp" | "udp">,
      *     }} options
      */
     constructor(options) {
@@ -36,6 +36,7 @@ class VideoStream extends events_1.EventEmitter {
         this.liveMuxerListeners = new Map();
         this.wsServer = new ws_1.Server({port: options?.wsPort || 9999});
         this.wsServer.on('connection', async (socket, request) => {
+            let noDataTimeout = null
             this.emit('connection', socket, request)
             if (!request.url) {
                 return;
@@ -66,7 +67,7 @@ class VideoStream extends events_1.EventEmitter {
             console.log('Socket connected', request.url);
             socket.id = Date.now().toString();
             socket.liveUrl = liveUrl;
-            if (!this.liveMuxers.has(liveUrl)) {
+            const startConnection = async () => {
                 const ffmpegArgs = typeof options.ffmpegArgs === 'function' ?
                     await options.ffmpegArgs(getCameraID(request.url)) :
                     options.ffmpegArgs
@@ -93,6 +94,7 @@ class VideoStream extends events_1.EventEmitter {
                 });
                 let listenerFunc = data => {
                     socket.send(data);
+
                 };
                 muxer.on('log', async message => {
                     socket.send(JSON.stringify({
@@ -102,11 +104,20 @@ class VideoStream extends events_1.EventEmitter {
                 })
                 muxer.on('mpeg1data', listenerFunc);
                 this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
+            }
+            if (!this.liveMuxers.has(liveUrl)) {
+                await startConnection()
             } else {
                 let muxer = this.liveMuxers.get(liveUrl);
                 if (muxer) {
                     let listenerFunc = data => {
                         socket.send(data);
+                        clearTimeout(noDataTimeout)
+                        noDataTimeout = setTimeout(async ()=>{
+                            this.liveMuxers.delete(liveUrl)
+                            await startConnection()
+                        }, 40000)
+
                     };
                     muxer.on('log', async message => {
                         socket.send(JSON.stringify({
