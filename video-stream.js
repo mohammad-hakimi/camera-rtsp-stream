@@ -94,7 +94,11 @@ class VideoStream extends events_1.EventEmitter {
                 });
                 let listenerFunc = data => {
                     socket.send(data);
-
+                    clearTimeout(noDataTimeout)
+                    noDataTimeout = setTimeout(async ()=>{
+                        this.liveMuxers.delete(liveUrl)
+                        await startConnection()
+                    }, 120000)
                 };
                 muxer.on('log', async message => {
                     socket.send(JSON.stringify({
