@@ -67,7 +67,7 @@ class VideoStream extends events_1.EventEmitter {
             console.log('Socket connected', request.url);
             socket.id = Date.now().toString();
             socket.liveUrl = liveUrl;
-            const startConnection = async () => {
+            if (!this.liveMuxers.has(liveUrl)) {
                 const ffmpegArgs = typeof options.ffmpegArgs === 'function' ?
                     await options.ffmpegArgs(getCameraID(request.url)) :
                     options.ffmpegArgs
@@ -96,8 +96,7 @@ class VideoStream extends events_1.EventEmitter {
                     socket.send(data);
                     clearTimeout(noDataTimeout)
                     noDataTimeout = setTimeout(async ()=>{
-                        this.liveMuxers.delete(liveUrl)
-                        await startConnection()
+                        this.liveMuxers.get(liveUrl).restart()
                     }, 120000)
                 };
                 muxer.on('log', async message => {
@@ -108,9 +107,6 @@ class VideoStream extends events_1.EventEmitter {
                 })
                 muxer.on('mpeg1data', listenerFunc);
                 this.liveMuxerListeners.set(`${liveUrl}-${socket.id}`, listenerFunc);
-            }
-            if (!this.liveMuxers.has(liveUrl)) {
-                await startConnection()
             } else {
                 let muxer = this.liveMuxers.get(liveUrl);
                 if (muxer) {
@@ -118,9 +114,8 @@ class VideoStream extends events_1.EventEmitter {
                         socket.send(data);
                         clearTimeout(noDataTimeout)
                         noDataTimeout = setTimeout(async ()=>{
-                            this.liveMuxers.delete(liveUrl)
-                            await startConnection()
-                        }, 120000)
+                            this.liveMuxers.get(liveUrl).restart()
+                        }, 60000)
 
                     };
                     muxer.on('log', async message => {

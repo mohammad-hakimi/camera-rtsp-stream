@@ -18,6 +18,8 @@ class Muxer extends events_1.EventEmitter {
      */
     constructor(options, type) {
         super();
+        this.options = options
+        this.type = type
         this.emit('log', "Stream is being initialized...")
         this.streamStarted = false;
         if (!options || typeof options == 'undefined') {
@@ -39,7 +41,7 @@ class Muxer extends events_1.EventEmitter {
                 }
             }).flat();
         }
-        let spawnFfmpegArgs = [
+        this.spawnFfmpegArgs = [
             '-rtsp_transport',
             options.transport ?? "tcp",
             '-i',
@@ -57,8 +59,18 @@ class Muxer extends events_1.EventEmitter {
             [`fps=fps=${options.fps * 2}`, ...(options.ffmpegArgs?.['-vf'] ? [options.ffmpegArgs['-vf']] : [])].join(','),
             '-'
         ];
+        this.start()
+
+    }
+
+    stop() {
+        this.streamProcess?.kill();
+        this.removeAllListeners();
+    }
+
+    start() {
         this.emit('log', "Connecting to the camera...")
-        this.streamProcess = child_process_1.spawn(options.ffmpegPath, spawnFfmpegArgs);
+        this.streamProcess = child_process_1.spawn(this.options.ffmpegPath, this.spawnFfmpegArgs);
         this.streamProcess.stdout?.on('data', data => {
             if (!this.streamStarted) {
                 this.streamStarted = true;
@@ -66,7 +78,7 @@ class Muxer extends events_1.EventEmitter {
             this.emit('mpeg1data', data);
         });
         this.streamProcess.stderr?.on('data', data => {
-            if (options.debug) {
+            if (this.options.debug) {
                 process.stderr.write(data);
             }
             if (data.toString('utf-8').indexOf('Server returned') >= 0) {
@@ -85,12 +97,11 @@ class Muxer extends events_1.EventEmitter {
                 this.emit('liveErr', 'Timeout');
                 this.stop();
             }
-        }, (options.timeout || 9) * 1000);
+        }, (this.options.timeout || 9) * 1000);
     }
-
-    stop() {
-        this.streamProcess?.kill();
-        this.removeAllListeners();
+    restart() {
+        this.streamProcess.kill()
+        this.start()
     }
 }
 
