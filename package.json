@@ -25,5 +25,5 @@
         "build": "tsc",
         "start": "ts-node ./test/app.ts"
     },
-    "version": "0.2.16-beta.4"
+    "version": "0.2.16-beta.5"
 }
