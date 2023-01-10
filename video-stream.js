@@ -96,8 +96,8 @@ class VideoStream extends events_1.EventEmitter {
                     socket.send(data);
                     clearTimeout(noDataTimeout)
                     noDataTimeout = setTimeout(async ()=>{
-                        this.liveMuxers.get(liveUrl).restart()
-                    }, 120000)
+                        this.liveMuxers.get(liveUrl)?.restart()
+                    }, 60000)
                 };
                 muxer.on('log', async message => {
                     socket.send(JSON.stringify({
@@ -114,7 +114,7 @@ class VideoStream extends events_1.EventEmitter {
                         socket.send(data);
                         clearTimeout(noDataTimeout)
                         noDataTimeout = setTimeout(async ()=>{
-                            this.liveMuxers.get(liveUrl).restart()
+                            this.liveMuxers.get(liveUrl)?.restart()
                         }, 60000)
 
                     };
