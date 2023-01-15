@@ -27,13 +27,15 @@ class VideoStream extends events_1.EventEmitter {
      *         format?: "mjpeg" | "mpeg1";
      *         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
      *         transport?: (camID: string, websocket: any, request: any) =>  "tcp" | "udp" | Promise< "tcp" | "udp">,
+     *         liveMuxers?: Map<string, Muxer>,
+     *         liveMuxersListeners?: Map<string, Function>
      *     }} options
      */
     constructor(options) {
         super();
         this.format = options.format ?? 'mpeg1'
-        this.liveMuxers = new Map();
-        this.liveMuxerListeners = new Map();
+        this.liveMuxers = options.liveMuxers ?? new Map();
+        this.liveMuxerListeners = options.liveMuxersListeners ?? new Map();
         this.wsServer = new ws_1.Server({port: options?.wsPort || 9999});
         this.wsServer.on('connection', async (socket, request) => {
             let noDataTimeout = null
@@ -95,7 +97,7 @@ class VideoStream extends events_1.EventEmitter {
                 let listenerFunc = data => {
                     socket.send(data);
                     clearTimeout(noDataTimeout)
-                    noDataTimeout = setTimeout(async ()=>{
+                    noDataTimeout = setTimeout(async () => {
                         this.liveMuxers.get(liveUrl)?.restart()
                     }, 60000)
                 };
@@ -113,7 +115,7 @@ class VideoStream extends events_1.EventEmitter {
                     let listenerFunc = data => {
                         socket.send(data);
                         clearTimeout(noDataTimeout)
-                        noDataTimeout = setTimeout(async ()=>{
+                        noDataTimeout = setTimeout(async () => {
                             this.liveMuxers.get(liveUrl)?.restart()
                         }, 60000)
 

@@ -1,4 +1,5 @@
 import {EventEmitter} from "events";
+import Muxer from "./muxers";
 
 export default class VideoStream extends EventEmitter {
     constructor(options: {
@@ -11,6 +12,8 @@ export default class VideoStream extends EventEmitter {
         format?: "mjpeg" | "mpeg1";
         transport?: (camID: string, websocket: any, request: any) => "tcp" | "udp" | Promise<"tcp" | "udp">;
         calculateFPS?: (camID: string, websocket: any, request: any) => number | Promise<number>;
+        liveMuxers?: Map<string, Muxer>,
+        liveMuxersListeners?: Map<string, Function>
     });
 
     stop(): void;
