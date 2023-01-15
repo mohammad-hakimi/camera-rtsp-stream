@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", {value: true});
-exports.VideoStream = void 0;
+module.exports = void 0;
 const events_1 = require("events");
 const ws_1 = require("ws");
 const muxers = require('./muxers')

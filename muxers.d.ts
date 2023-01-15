@@ -1,6 +1,6 @@
+import {EventEmitter} from "events";
 
 declare module 'muxers' {
-    import {EventEmitter} from "events";
     export default class Muxer extends EventEmitter {
         constructor(
             options: {

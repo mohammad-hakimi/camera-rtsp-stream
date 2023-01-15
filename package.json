@@ -16,6 +16,7 @@
     "license": "MIT",
     "main": "video-stream.js",
     "name": "camera-rtsp-stream",
+    "types": "index.d.ts",
     "repository": {
         "type": "git",
         "url": "https://github.com/mohammad-hakimi/camera-rtsp-stream.git"
@@ -24,5 +25,5 @@
         "build": "tsc",
         "start": "ts-node ./test/app.ts"
     },
-    "version": "0.2.18"
+    "version": "0.2.19"
 }

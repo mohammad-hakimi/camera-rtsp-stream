@@ -1,3 +1,2 @@
-declare module 'camera-rtsp-stream' {
-
-}
+export * from './video-stream';
+export * from './muxers';

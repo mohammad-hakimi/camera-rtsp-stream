@@ -1,7 +1,6 @@
 import {EventEmitter} from "events";
 
 declare module 'video-stream' {
-    import {EventEmitter} from "events";
     export default class VideoStream extends EventEmitter {
         constructor(options: {
             urlCreator?: (camId: string, websocket: any, request: any) => Promise<string>;
