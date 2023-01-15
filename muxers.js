@@ -105,4 +105,4 @@ class Muxer extends events_1.EventEmitter {
     }
 }
 
-exports.Muxer = Muxer;
+module.exports = Muxer;

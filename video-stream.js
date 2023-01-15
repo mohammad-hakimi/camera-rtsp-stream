@@ -171,4 +171,4 @@ class VideoStream extends events_1.EventEmitter {
     }
 }
 
-exports.VideoStream = VideoStream;
+module.exports = VideoStream;
