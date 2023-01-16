@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", {value: true});
 module.exports = void 0;
 const events_1 = require("events");
 const ws_1 = require("ws");
-const muxers = require('./muxers')
+const Muxer = require('./muxers')
 
 function getCameraID(url) {
     try {
@@ -76,8 +76,10 @@ class VideoStream extends events_1.EventEmitter {
                 const transport = typeof options.transport === 'function' ?
                     await options.transport(getCameraID(request.url), socket, request) :
                     options.transport
-                let muxer = new muxers.Muxer({
-                    ...options,
+                let muxer = new Muxer({
+                    format: options.format,
+                    timeout: options.timeout,
+                    ffmpegPath: options.ffmpegPath,
                     url: liveUrl,
                     fps: fps,
                     ffmpegArgs,
